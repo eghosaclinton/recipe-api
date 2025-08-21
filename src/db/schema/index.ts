@@ -1,0 +1,1 @@
+export {usersTable, type UserInsert, type UserSelect} from "./user"
