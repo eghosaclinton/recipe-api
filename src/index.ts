@@ -1,11 +1,16 @@
 import Fastify from "fastify";
+import * as dotenv from "dotenv";
+import { indexRoute } from "./routes/v1";
 import swagger from "@fastify/swagger";
 import swaggerUI from "@fastify/swagger-ui";
+
+dotenv.config();
 
 const fastify = Fastify({
   logger: true,
 });
 
+//plugins
 fastify.register(swagger, {
   openapi: {
     info: {
@@ -19,25 +24,8 @@ fastify.register(swaggerUI, {
   routePrefix: "/docs",
 });
 
-fastify.get(
-  "/",
-  {
-    schema: {
-      description: "Hello world",
-      response: {
-        200: {
-          type: "object",
-          properties: {
-            hello: { type: "string" },
-          },
-        },
-      },
-    },
-  },
-  (req, reply) => {
-    reply.send({ hello: 1 });
-  }
-);
+//services
+fastify.register(indexRoute, { prefix: "/api/v1" });
 
 fastify.listen({ port: 3001 }, (err, address) => {
   if (err) {
