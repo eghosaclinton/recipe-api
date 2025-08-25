@@ -46,13 +46,20 @@ export async function indexRoute(
             type: "object",
             properties: {
               ok: { type: "boolean" },
+              host: { type: "string" },
             },
           },
         },
       },
     },
-    (_req, reply) => {
-      reply.send({ ok: true }).status(200);
+    async (req, reply) => {
+
+      reply
+        .send({
+          ok: true,
+          host: `${req.protocol}://${req.host}`,
+        })
+        .status(200);
     }
   );
 }

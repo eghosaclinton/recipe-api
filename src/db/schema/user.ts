@@ -1,11 +1,21 @@
-import {integer, pgTable, varchar} from "drizzle-orm/pg-core"
+import { pgTable, varchar, uuid, boolean, text, timestamp } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    name: varchar({length: 255}).notNull(),
-    age: integer().notNull(),
-    email: varchar({length:255}).notNull().unique()
-})
+  id: uuid().primaryKey().defaultRandom(),
+  name: varchar({ length: 255 }).notNull(),
+  password: varchar({ length: 255 }).notNull(),
+  email: varchar({ length: 255 }).notNull().unique(),
+  emailVerified: boolean("email_verified")
+    .$defaultFn(() => false)
+    .notNull(),
+  image: text("image"),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
 
-export type UserInsert = typeof usersTable.$inferInsert
-export type UserSelect = typeof usersTable.$inferSelect
+export type UserInsert = typeof usersTable.$inferInsert;
+export type UserSelect = typeof usersTable.$inferSelect;

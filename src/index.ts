@@ -3,11 +3,12 @@ import * as dotenv from "dotenv";
 import { indexRoute } from "./routes/v1";
 import swagger from "@fastify/swagger";
 import swaggerUI from "@fastify/swagger-ui";
+import { sendVerificationEmail } from "./lib/email";
 
 dotenv.config();
 
 const fastify = Fastify({
-  logger: true,
+  logger: false,
 });
 
 //plugins
@@ -26,6 +27,11 @@ fastify.register(swaggerUI, {
 
 //services
 fastify.register(indexRoute, { prefix: "/api/v1" });
+
+// fastify.get("/mail", async (_req, reply)=>{
+//   await sendVerificationEmail({email: "aceinnovations0@gmail.com"})
+//   reply.send("sent mail")
+// })
 
 fastify.listen({ port: 3001 }, (err, address) => {
   if (err) {
