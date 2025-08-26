@@ -1,12 +1,10 @@
 import { db } from "../db/connect";
 import { eq } from "drizzle-orm";
+import { sendVerificationEmail } from "../lib/email";
 import type { RequestRegister } from "../json-schemas/user";
 import type { FastifyRequest, FastifyReply, FastifyInstance } from "fastify";
 import { UserInsert, UserSelect, usersTable } from "../db/schema";
 import * as argon2 from "argon2";
-
-const testToken ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFjN2Q3YTgyLTJiZjEtNGIyYy05MTE0LTMwMWFlMTJiZThlNCIsIm5hbWUiOiJKb2huIiwiZW1haWwiOiJhY2Vpbm5vdmF0aW9uczBAZ21haWwuY29tIiwiaWF0IjoxNzU2MTE4NjgzLCJleHAiOjE3NTYxNjE4ODN9.6eQaYHUJfYERo7yikuz8p_c3ZEhCZcivxl2uMlgvtF4"
-
 export class UserControllers {
   constructor() {}
 
@@ -36,15 +34,15 @@ export class UserControllers {
       password: hashPassword,
     };
 
-    const newUser = await db
+    const [{ name, email, id }] = await db
       .insert(usersTable)
       .values(userCredentials)
       .returning()
       .onConflictDoNothing({ target: usersTable.email });
 
-    const token = await reply.jwtSign(newUser[0]);
+    const token = await reply.jwtSign({ name, email, id });
 
-    //email handler
+    await sendVerificationEmail({token, email, callback: `${req.host}`, name});
 
     reply.status(200).send({ message: "Check email for verification." });
   }
@@ -68,8 +66,8 @@ export class UserControllers {
       //   path: "/",
       //   maxAge: 3600,
       // });
-
-      reply.redirect(`${req.protocol}://${callback}`);
+      //do something about rediraction and cookies
+      // reply.redirect(`${req.protocol}://${callback}`);
     }
 
     reply.send("inavalid verification token.");

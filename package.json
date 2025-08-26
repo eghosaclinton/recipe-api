@@ -25,12 +25,14 @@
     "dotenv": "^17.2.1",
     "drizzle-orm": "^0.44.4",
     "fastify": "^5.5.0",
-    "nodemailer": "^7.0.5"
+    "nodemailer": "^7.0.5",
+    "react": "^19.1.1"
   },
   "devDependencies": {
     "@types/dotenv": "^8.2.3",
     "@types/node": "^24.3.0",
     "@types/nodemailer": "^7.0.1",
+    "@types/react": "^19.1.11",
     "drizzle-kit": "^0.31.4",
     "json-schema-to-ts": "^3.1.1",
     "nodemon": "^3.1.10",
