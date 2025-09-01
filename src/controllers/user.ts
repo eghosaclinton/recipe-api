@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import { sendVerificationEmail } from "../lib/email";
 import type { RequestRegister } from "../json-schemas/user";
 import type { FastifyRequest, FastifyReply, FastifyInstance } from "fastify";
-import { UserInsert, UserSelect, usersTable } from "../db/schema";
+import { UserInsert, usersTable } from "../db/schema";
 import * as argon2 from "argon2";
 export class UserControllers {
   constructor() {}
@@ -31,30 +31,42 @@ export class UserControllers {
 
     const hashPassword = await argon2.hash(credentials.password, options);
 
-    const { name, email, password } = {
+    const userCredentials = {
       ...credentials,
       password: hashPassword,
     };
 
     const token = crypto.randomBytes(16).toString("hex");
 
-    // await sendVerificationEmail({token, email, callback: `${req.host}`, name});
+    await redisClient.set(token, JSON.stringify(userCredentials));
+
+    const { email, name } = userCredentials;
+
+    await sendVerificationEmail({
+      token,
+      email,
+      callback: `https://x.com/a1s0sa`,
+      name,
+    });
 
     reply.status(200).send({ message: "Check email for verification." });
   }
 
   async verify(req: FastifyRequest, reply: FastifyReply, app: FastifyInstance) {
     const { q, callback } = req.query as { q: string; callback: string };
-    const decodedPayload = app.jwt.decode(q) as UserSelect;
+    const cachedCredentials = await redisClient.get(q);
 
-    if (decodedPayload) {
-      const verifyEmail = await db
-        .update(usersTable)
-        .set({ emailVerified: true })
-        .where(eq(usersTable.email, decodedPayload.email));
+    if (cachedCredentials) {
+      const [{ name, email, id }] = await db
+        .insert(usersTable)
+        .values({ ...JSON.parse(cachedCredentials), emailVerified: true })
+        .returning()
+        .onConflictDoNothing({ target: usersTable.email });
 
       reply.send("email verified");
+      reply.redirect(`${callback}`);
 
+      //do something about rediraction and cookies
       // await reply.setCookie("LMCSESSION", q, {
       //   httpOnly: true,
       //   secure: true, // only over HTTPS
@@ -62,8 +74,6 @@ export class UserControllers {
       //   path: "/",
       //   maxAge: 3600,
       // });
-      //do something about rediraction and cookies
-      // reply.redirect(`${req.protocol}://${callback}`);
     }
 
     reply.send("inavalid verification token.");

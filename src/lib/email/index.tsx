@@ -17,32 +17,35 @@ export async function sendVerificationEmail({
   callback,
   name,
 }: VerificationOptions) {
+  const url =
+    process.env.NODE_ENV! == "production"
+      ? process.env.BASE_URL_PROD!
+      : process.env.BASE_URL_DEV!;
+
   const html = await render(
     <VerificationTemplate
       appName={"Recipe app"}
       userName={name}
       userEmail={email}
-      verifyUrl={`${
-        process.env.NODE_ENV! == "production"
-          ? process.env.BASE_URL_DEV!
-          : process.env.BASE_URL_PROD!
-      }?q=${token}&callback=${callback}`}
+      verifyUrl={`${url}/api/v1/user/verify?q=${token}&callback=${callback}`}
       expiryMinutes={10}
     />
   );
 
-  const { sendMail } = nodemailer.createTransport({
+  const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
       user: process.env.EMAIL_AUTH_USERNAME!,
       pass: process.env.EMAIL_AUTH_PASSWORD!,
     },
   });
+
   const mailOptions = {
     from: process.env.EMAIL_AUTH_USERNAME!,
     to: email,
     subject: `Verify your email.`,
     html,
   };
-  await sendMail(mailOptions);
+
+  await transporter.sendMail(mailOptions);
 }
