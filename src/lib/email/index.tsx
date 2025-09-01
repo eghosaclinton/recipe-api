@@ -1,4 +1,3 @@
-//@ts-nocheck
 import nodemailer from "nodemailer";
 import { render } from "@react-email/components";
 import VerificationTemplate from "./templates/verification";
@@ -16,19 +15,23 @@ export async function sendVerificationEmail({
   token,
   email,
   callback,
-  name
+  name,
 }: VerificationOptions) {
   const html = await render(
     <VerificationTemplate
       appName={"Recipe app"}
       userName={name}
       userEmail={email}
-      verifyUrl={`${1}?q=${token}&callback=${callback}`}
-      expiryMinutes={30}
+      verifyUrl={`${
+        process.env.NODE_ENV! == "production"
+          ? process.env.BASE_URL_DEV!
+          : process.env.BASE_URL_PROD!
+      }?q=${token}&callback=${callback}`}
+      expiryMinutes={10}
     />
   );
 
-  const transporter = nodemailer.createTransport({
+  const { sendMail } = nodemailer.createTransport({
     service: "gmail",
     auth: {
       user: process.env.EMAIL_AUTH_USERNAME!,
@@ -37,9 +40,9 @@ export async function sendVerificationEmail({
   });
   const mailOptions = {
     from: process.env.EMAIL_AUTH_USERNAME!,
-    to: options.email,
+    to: email,
     subject: `Verify your email.`,
     html,
   };
-  await transporter.sendMail(mailOptions);
+  await sendMail(mailOptions);
 }

@@ -2,3 +2,4 @@ ignoredBuiltDependencies:
   - esbuild
 onlyBuiltDependencies:
   - argon2
+  - unrs-resolver

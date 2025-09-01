@@ -1,4 +1,6 @@
 import { db } from "../db/connect";
+import crypto from "crypto";
+import { redisClient } from "../lib/redis";
 import { eq } from "drizzle-orm";
 import { sendVerificationEmail } from "../lib/email";
 import type { RequestRegister } from "../json-schemas/user";
@@ -9,7 +11,7 @@ export class UserControllers {
   constructor() {}
 
   async register(req: RequestRegister, reply: FastifyReply) {
-    const credentials = req.body as UserInsert;
+    const credentials = req.body as unknown as UserInsert;
     const options = {
       type: argon2.argon2id,
       // memoryCost: 16384,
@@ -23,26 +25,20 @@ export class UserControllers {
     });
 
     if (user) {
-      reply.send("User with email already exists!").status(400);
+      reply.send({ message: "User with email already exists!" }).status(400);
       return;
     }
 
     const hashPassword = await argon2.hash(credentials.password, options);
 
-    const userCredentials = {
+    const { name, email, password } = {
       ...credentials,
       password: hashPassword,
     };
 
-    const [{ name, email, id }] = await db
-      .insert(usersTable)
-      .values(userCredentials)
-      .returning()
-      .onConflictDoNothing({ target: usersTable.email });
+    const token = crypto.randomBytes(16).toString("hex");
 
-    const token = await reply.jwtSign({ name, email, id });
-
-    await sendVerificationEmail({token, email, callback: `${req.host}`, name});
+    // await sendVerificationEmail({token, email, callback: `${req.host}`, name});
 
     reply.status(200).send({ message: "Check email for verification." });
   }

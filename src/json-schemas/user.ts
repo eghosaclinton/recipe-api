@@ -10,8 +10,8 @@ export const registerSchema = {
     type: "object",
     properties: {
       name: { type: "string" },
-      age: { type: "number" },
-      email: { type: "string" },
+      password: { type: "string" },
+      email: { type: "string" }, 
     },
   },
   response: {
