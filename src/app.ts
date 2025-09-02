@@ -3,7 +3,8 @@ import * as dotenv from "dotenv";
 import { indexRoute } from "./routes/v1";
 import swagger from "@fastify/swagger";
 import swaggerUI from "@fastify/swagger-ui";
-import { sendVerificationEmail } from "./lib/email";
+import type { FastifyCookieOptions } from "@fastify/cookie";
+import cookie from "@fastify/cookie";
 import { redisClient as client } from "./lib/redis";
 dotenv.config();
 
@@ -16,6 +17,8 @@ export default function FastifyApp() {
   (async () => await client.connect())();
 
   //plugins
+  fastify.register(cookie);
+
   fastify.register(swagger, {
     openapi: {
       info: {
@@ -32,7 +35,7 @@ export default function FastifyApp() {
   //services
   fastify.register(indexRoute, { prefix: "/api/v1" });
 
-  fastify.get("/ping", (req, reply) => {
+  fastify.get("/ping", (_req, reply) => {
     reply.send({ message: "pong" });
   });
 

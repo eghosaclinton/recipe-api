@@ -29,6 +29,28 @@ export const registerSchema = {
   },
 } as const;
 
+export const signInSchema = {
+  body: {
+    type: "object",
+    required: ["password", "email", "callback"],
+    properties: {
+      email: { type: "string" },
+      password: { type: "string" },
+      callback: { type: "string" },
+    },
+    minLength: 1,
+    additionalProperties: false,    
+  },
+  response: {
+    "400": {
+      type: "object",
+      properties: {
+        message: { type: "string" },
+      },
+    },
+  },
+} as const;
+
 export type Register = SchemaProperties<typeof registerSchema>;
 export type RequestRegister = FastifyRequest<{
   Body: Register["body"];

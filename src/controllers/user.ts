@@ -58,7 +58,7 @@ export class UserControllers {
     const cachedCredentials = await redisClient.get(q);
 
     if (cachedCredentials) {
-      const user = await db
+      const [{ name, email, id }] = await db
         .insert(usersTable)
         .values({ ...JSON.parse(cachedCredentials), emailVerified: true })
         .returning()
@@ -66,7 +66,21 @@ export class UserControllers {
 
       await redisClient.del(q);
 
-      reply.redirect(`${callback}`);
+      const SESSION = app.jwt.sign({
+        name,
+        email,
+        id,
+      });
+
+      reply
+        .setCookie("JSESSION", SESSION, {
+          httpOnly: true,
+          // secure: true, // only over HTTPS
+          sameSite: "strict",
+          path: "/",
+          maxAge: 3600,
+        })
+        .redirect(`${callback}`);
     }
 
     reply.send("inavalid verification token or token has been used");
