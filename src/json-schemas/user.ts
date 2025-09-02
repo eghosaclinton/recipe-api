@@ -2,17 +2,22 @@ import type { FastifyRequest } from "fastify";
 import { FromSchema, type JSONSchema } from "json-schema-to-ts";
 
 type SchemaProperties<T> = {
-  [K in keyof T]:  T[K] extends JSONSchema ? FromSchema<T[K]> : never;
+  [K in keyof T]: T[K] extends JSONSchema ? FromSchema<T[K]> : never;
 };
 
 export const registerSchema = {
   body: {
     type: "object",
+    required: ["name", "password", "email", "callback"],
     properties: {
       name: { type: "string" },
       password: { type: "string" },
-      email: { type: "string" }, 
+      email: { type: "string" },
+      callback: { type: "string" },
     },
+    minLength: 1,
+    additionalProperties: false,
+    
   },
   response: {
     "200": {
@@ -24,8 +29,8 @@ export const registerSchema = {
   },
 } as const;
 
-export type Register = SchemaProperties<typeof registerSchema>
+export type Register = SchemaProperties<typeof registerSchema>;
 export type RequestRegister = FastifyRequest<{
-  Body: Register["body"],
-  Reply: Register['response']
-}>
+  Body: Register["body"];
+  Reply: Register["response"];
+}>;

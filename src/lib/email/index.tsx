@@ -49,3 +49,5 @@ export async function sendVerificationEmail({
 
   await transporter.sendMail(mailOptions);
 }
+
+export async function sendWelcomeEmail(){}

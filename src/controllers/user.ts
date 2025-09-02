@@ -11,7 +11,7 @@ export class UserControllers {
   constructor() {}
 
   async register(req: RequestRegister, reply: FastifyReply) {
-    const credentials = req.body as unknown as UserInsert;
+    const body = req.body;
     const options = {
       type: argon2.argon2id,
       // memoryCost: 16384,
@@ -21,7 +21,7 @@ export class UserControllers {
     };
 
     const user = await db.query.usersTable.findFirst({
-      where: eq(usersTable.email, credentials.email),
+      where: eq(usersTable.email, body.email as string),
     });
 
     if (user) {
@@ -29,10 +29,11 @@ export class UserControllers {
       return;
     }
 
-    const hashPassword = await argon2.hash(credentials.password, options);
+    const hashPassword = await argon2.hash(body.password!, options);
 
     const userCredentials = {
-      ...credentials,
+      email: body.email,
+      name: body.name,
       password: hashPassword,
     };
 
@@ -44,9 +45,9 @@ export class UserControllers {
 
     await sendVerificationEmail({
       token,
-      email,
-      callback: `https://x.com/a1s0sa`,
-      name,
+      email: email!,
+      callback: body.callback!,
+      name: name!,
     });
 
     reply.status(200).send({ message: "Check email for verification." });
@@ -57,29 +58,36 @@ export class UserControllers {
     const cachedCredentials = await redisClient.get(q);
 
     if (cachedCredentials) {
-      const [{ name, email, id }] = await db
+      const user = await db
         .insert(usersTable)
         .values({ ...JSON.parse(cachedCredentials), emailVerified: true })
         .returning()
         .onConflictDoNothing({ target: usersTable.email });
 
-      reply.send("email verified");
-      reply.redirect(`${callback}`);
+      await redisClient.del(q);
 
-      //do something about rediraction and cookies
-      // await reply.setCookie("LMCSESSION", q, {
-      //   httpOnly: true,
-      //   secure: true, // only over HTTPS
-      //   sameSite: "strict",
-      //   path: "/",
-      //   maxAge: 3600,
-      // });
+      reply.redirect(`${callback}`);
     }
 
-    reply.send("inavalid verification token.");
+    reply.send("inavalid verification token or token has been used");
   }
 
-  signIn() {}
+  async signIn() {
+    // const SESSION = app.jwt.sign({
+    //   name,
+    //   email,
+    //   id,
+    // });
+    // await reply.setCookie("JSESSION", SESSION, {
+    //   httpOnly: true,
+    //   secure: true, // only over HTTPS
+    //   sameSite: "strict",
+    //   path: "/",
+    //   maxAge: 3600,
+    // });
+  }
+
+  async signOut() {}
 
   getProfile() {}
 
