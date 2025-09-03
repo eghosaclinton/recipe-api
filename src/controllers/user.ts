@@ -125,7 +125,8 @@ export class UserControllers {
             maxAge: 3600,
           })
           .send({ message: "successfully logged in" })
-          .status(200);
+          .redirect(body.callback)
+          .status(200); 
         return;
       }
     }
@@ -133,7 +134,9 @@ export class UserControllers {
     reply.send({ message: "Email or Password is incorrect" }).status(400);
   }
 
-  async signOut() {}
+  async signOut(_req: FastifyRequest, reply: FastifyReply) {
+    reply.clearCookie("JSESSION").send({message: "logged out"});
+  }
 
   getProfile() {}
 
