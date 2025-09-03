@@ -135,7 +135,7 @@ export class UserControllers {
   }
 
   async signOut(_req: FastifyRequest, reply: FastifyReply) {
-    reply.clearCookie("JSESSION").send({message: "logged out"});
+    reply.clearCookie("JSESSION").send({message: "logged out"}).status(200);
   }
 
   getProfile() {}
