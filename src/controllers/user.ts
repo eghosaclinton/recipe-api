@@ -111,7 +111,7 @@ export class UserControllers {
 
       if (isPasswordCorrect) {
         const SESSION = await reply.jwtSign({
-          name: user.userName,
+          userName: user.userName,
           email: user.email,
           id: user.id,
         });
@@ -126,7 +126,7 @@ export class UserControllers {
           })
           .send({ message: "successfully logged in" })
           .redirect(body.callback)
-          .status(200); 
+          .status(200);
         return;
       }
     }
@@ -135,10 +135,31 @@ export class UserControllers {
   }
 
   async signOut(_req: FastifyRequest, reply: FastifyReply) {
-    reply.clearCookie("JSESSION").send({message: "logged out"}).status(200);
+    reply.clearCookie("JSESSION").send({ message: "logged out" }).status(200);
   }
 
-  getProfile() {}
+  async getProfile(req: FastifyRequest, reply: FastifyReply) {
+    const user = req.user as {
+      userName: string;
+      email: string;
+      id: string;
+    };
 
-  setProfile() {}
+    const profile =  await db.query.usersTable.findFirst({
+      where: eq(usersTable.email, user.email),
+    });
+
+    reply.send({
+      name: profile?.name,
+      userName: profile?.userName,
+      id: profile?.id,
+      email: profile?.email,
+      image: profile?.image,
+      emailVerified: profile?.emailVerified,
+      joinedOn: profile?.createdAt
+    }).status(200)
+  }
+
+  //TODO: write the hooks that apend the decoded jwt to the req.user and for prevalidation auth
+  setProfile(req: FastifyRequest, reply: FastifyReply) {}
 }

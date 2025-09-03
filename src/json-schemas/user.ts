@@ -11,12 +11,12 @@ export const registerSchema = {
     required: ["name", "password", "email", "userName", "callback"],
     properties: {
       name: { type: "string" },
-      userName: { type: "string" },
+      userName: { type: "string", maxLength: 15 },
       password: { type: "string" },
       email: { type: "string" },
       callback: { type: "string" },
     },
-    minLength: 1,
+    minLength: 3,
     additionalProperties: false,
   },
   response: {
@@ -41,7 +41,7 @@ export const signInSchema = {
       password: { type: "string" },
       callback: { type: "string" },
     },
-    minLength: 1,
+    minLength: 3,
     additionalProperties: false,
   },
   response: {
