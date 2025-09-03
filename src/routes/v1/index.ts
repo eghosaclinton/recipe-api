@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyPluginOptions } from "fastify";
 import { userRoutes } from "./user";
+import { recipeRoutes } from "./recipe";
 import { fastifyJwt } from "@fastify/jwt";
 
 export async function indexRoute(
@@ -28,6 +29,7 @@ export async function indexRoute(
 
   //services
   app.register(userRoutes, { prefix: "/user" });
+  app.register(recipeRoutes, { prefix: "/recipes" });
   app.get(
     "/ok",
     {

@@ -11,7 +11,7 @@ export async function userRoutes(app: FastifyInstance) {
 
   app.post("/register", { schema: registerSchema }, user.register);
   app.get("/verify", (req, reply) => user.verify(req, reply, app));
-  app.post("login", { schema: signInSchema }, user.signIn);
+  app.post("/login", { schema: signInSchema }, user.signIn);
   app.get("/profile", user.getProfile);
   app.put("/profile", user.setProfile);
 }

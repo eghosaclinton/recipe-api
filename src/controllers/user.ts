@@ -3,36 +3,46 @@ import crypto from "crypto";
 import { redisClient } from "../lib/redis";
 import { eq } from "drizzle-orm";
 import { sendVerificationEmail } from "../lib/email";
-import type { RequestRegister } from "../json-schemas/user";
+import type { RequestRegister, RequestSignIn } from "../json-schemas/user";
 import type { FastifyRequest, FastifyReply, FastifyInstance } from "fastify";
 import { UserInsert, usersTable } from "../db/schema";
 import * as argon2 from "argon2";
 export class UserControllers {
+  options = {
+    type: argon2.argon2id,
+    // memoryCost: 16384,
+    memoryCost: 32768,
+    timeCost: 3,
+    parallelism: 1,
+  };
   constructor() {}
 
   async register(req: RequestRegister, reply: FastifyReply) {
     const body = req.body;
-    const options = {
-      type: argon2.argon2id,
-      // memoryCost: 16384,
-      memoryCost: 32768,
-      timeCost: 3,
-      parallelism: 1,
-    };
 
-    const user = await db.query.usersTable.findFirst({
+    const userWithEmail = await db.query.usersTable.findFirst({
       where: eq(usersTable.email, body.email as string),
     });
 
-    if (user) {
+    const userWithName = await db.query.usersTable.findFirst({
+      where: eq(usersTable.userName, body.userName as string),
+    });
+
+    if (userWithEmail) {
       reply.send({ message: "User with email already exists!" }).status(400);
       return;
     }
 
-    const hashPassword = await argon2.hash(body.password!, options);
+    if (userWithName) {
+      reply.send({ message: "User with username already exists!" }).status(400);
+      return;
+    }
+
+    const hashPassword = await argon2.hash(body.password!, this.options);
 
     const userCredentials = {
       email: body.email,
+      userName: body.userName,
       name: body.name,
       password: hashPassword,
     };
@@ -58,7 +68,7 @@ export class UserControllers {
     const cachedCredentials = await redisClient.get(q);
 
     if (cachedCredentials) {
-      const [{ name, email, id }] = await db
+      const [{ userName, email, id }] = await db
         .insert(usersTable)
         .values({ ...JSON.parse(cachedCredentials), emailVerified: true })
         .returning()
@@ -67,7 +77,7 @@ export class UserControllers {
       await redisClient.del(q);
 
       const SESSION = app.jwt.sign({
-        name,
+        userName,
         email,
         id,
       });
@@ -86,19 +96,41 @@ export class UserControllers {
     reply.send("inavalid verification token or token has been used");
   }
 
-  async signIn() {
-    // const SESSION = app.jwt.sign({
-    //   name,
-    //   email,
-    //   id,
-    // });
-    // await reply.setCookie("JSESSION", SESSION, {
-    //   httpOnly: true,
-    //   secure: true, // only over HTTPS
-    //   sameSite: "strict",
-    //   path: "/",
-    //   maxAge: 3600,
-    // });
+  async signIn(req: RequestSignIn, reply: FastifyReply) {
+    const body = req.body;
+
+    const user = await db.query.usersTable.findFirst({
+      where: eq(usersTable.email, body.email as string),
+    });
+
+    if (user) {
+      const isPasswordCorrect = await argon2.verify(
+        user.password,
+        body.password
+      );
+
+      if (isPasswordCorrect) {
+        const SESSION = await reply.jwtSign({
+          name: user.userName,
+          email: user.email,
+          id: user.id,
+        });
+
+        await reply
+          .setCookie("JSESSION", SESSION, {
+            httpOnly: true,
+            // secure: true, // only over HTTPS
+            sameSite: "strict",
+            path: "/",
+            maxAge: 3600,
+          })
+          .send({ message: "successfully logged in" })
+          .status(200);
+        return;
+      }
+    }
+
+    reply.send({ message: "Email or Password is incorrect" }).status(400);
   }
 
   async signOut() {}
