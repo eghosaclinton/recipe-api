@@ -160,6 +160,6 @@ export class UserControllers {
     }).status(200)
   }
 
-  //TODO: write the hooks that apend the decoded jwt to the req.user and for prevalidation auth
+  //TODO: write the hooks that apend the decoded jwt to the req.user and for prevalidation auth and this set profile controller as well as the reciper controllers
   setProfile(req: FastifyRequest, reply: FastifyReply) {}
 }
