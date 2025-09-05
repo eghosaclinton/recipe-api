@@ -1,4 +1,4 @@
-import { pgTable, integer, text, primaryKey } from "drizzle-orm/pg-core";
+import { pgTable, integer, text, primaryKey, uuid } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { recipeTable } from "./recipe";
 import { tagsTable } from "./tags";
@@ -6,7 +6,7 @@ import { tagsTable } from "./tags";
 export const recipeTagsTable = pgTable(
   "recipe_tags",
   {
-    recipeId: text("recipe_id")
+    recipeId: uuid("recipe_id")
       .notNull()
       .references(() => recipeTable.id, { onDelete: "cascade" }),
     tagId: integer("tag_id")

@@ -1,4 +1,4 @@
-import { pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { usersTable } from "./user";
 import { commentsTable } from "./comments";
@@ -6,10 +6,10 @@ import { commentsTable } from "./comments";
 export const commentLikesTable = pgTable(
   "comment_likes",
   {
-    likerId: text()
+    likerId: uuid()
       .notNull()
       .references(() => usersTable.id, { onDelete: "cascade" }),
-    commentId: text()
+    commentId: uuid()
       .notNull()
       .references(() => commentsTable.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at")

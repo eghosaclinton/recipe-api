@@ -4,6 +4,7 @@ import {
   primaryKey,
   timestamp,
   check,
+  uuid,
 } from "drizzle-orm/pg-core";
 import { usersTable } from "./user";
 import { relations, sql } from "drizzle-orm";
@@ -11,10 +12,10 @@ import { relations, sql } from "drizzle-orm";
 export const followsTable = pgTable(
   "follows",
   {
-    followerId: text()
+    followerId: uuid()
       .notNull()
       .references(() => usersTable.id, { onDelete: "cascade" }),
-    followeeId: text()
+    followeeId: uuid()
       .notNull()
       .references(() => usersTable.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at")

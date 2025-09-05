@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1756070016480,
-      "tag": "0000_thin_ghost_rider",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1756858070981,
-      "tag": "0001_broken_carnage",
+      "when": 1757099339768,
+      "tag": "0000_common_smiling_tiger",
       "breakpoints": true
     }
   ]

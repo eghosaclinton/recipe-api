@@ -1,4 +1,10 @@
-import { pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { usersTable } from "./user";
 import { recipeTable } from "./recipe";
@@ -6,8 +12,8 @@ import { recipeTable } from "./recipe";
 export const favoriteRecipesTable = pgTable(
   "favorite_recipes",
   {
-    recipeId: text(),
-    userId: text(),
+    recipeId: uuid(),
+    userId: uuid(),
     createdAt: timestamp("created_at")
       .$defaultFn(() => /* @__PURE__ */ new Date())
       .notNull(),

@@ -5,13 +5,14 @@ import {
   numeric,
   text,
   integer,
+  uuid,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { recipeTable } from "./recipe";
 
 export const recipeIngredientsTable = pgTable("recipe_ingredients", {
   id: serial("id").primaryKey(),
-  recipeId: text("recipe_id")
+  recipeId: uuid("recipe_id")
     .notNull()
     .references(() => recipeTable.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }).notNull(),

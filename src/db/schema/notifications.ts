@@ -4,7 +4,7 @@ import { relations } from "drizzle-orm";
 
 export const notificationsTable = pgTable("notifications", {
   id: uuid().primaryKey().defaultRandom(),
-  userId: text()
+  userId: uuid()
     .notNull()
     .references(() => usersTable.id, { onDelete: "cascade" }),
   Image: text(),

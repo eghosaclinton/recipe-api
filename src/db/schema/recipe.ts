@@ -22,7 +22,7 @@ export const recipeTable = pgTable("recipes", {
     .notNull()
     .$type<{ step: number; text: string, image?: string }[]>(),
   tags: jsonb().notNull().$type<string[]>(),
-  userId: text()
+  userId: uuid()
     .notNull()
     .references(() => usersTable.id, { onDelete: "cascade" }),
   image: text("image"),

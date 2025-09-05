@@ -15,13 +15,13 @@ export const commentsTable = pgTable(
   "comments",
   {
     id: uuid().primaryKey().defaultRandom(),
-    authorId: text()
+    authorId: uuid()
       .notNull()
       .references(() => usersTable.id, { onDelete: "cascade" }),
-    recipeId: text()
+    recipeId: uuid()
       .notNull()
       .references(() => recipeTable.id, { onDelete: "cascade" }),
-    parentId: text(),
+    parentId: uuid(),
     body: varchar({ length: 1023 }).notNull(),
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
     createdAt: timestamp("created_at")
