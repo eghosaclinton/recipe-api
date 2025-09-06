@@ -3,11 +3,11 @@ import * as dotenv from "dotenv";
 import { indexRoute } from "./routes/v1";
 import swagger from "@fastify/swagger";
 import swaggerUI from "@fastify/swagger-ui";
-import type { FastifyCookieOptions } from "@fastify/cookie";
 import cookie from "@fastify/cookie";
 import { redisClient as client } from "./lib/redis";
 dotenv.config();
 
+//TODO: DO SOMETHING ABOUT IMAGE UPLOADS
 export default function FastifyApp() {
   const fastify = Fastify({
     logger: false,

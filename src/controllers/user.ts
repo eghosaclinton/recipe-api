@@ -3,9 +3,9 @@ import crypto from "crypto";
 import { redisClient } from "../lib/redis";
 import { eq } from "drizzle-orm";
 import { sendVerificationEmail } from "../lib/email";
-import type { RequestRegister, RequestSignIn } from "../json-schemas/user";
+import type { RegisterRequest, SignInRequest } from "../json-schemas/user";
 import type { FastifyRequest, FastifyReply, FastifyInstance } from "fastify";
-import { UserInsert, usersTable } from "../db/schema";
+import { usersTable } from "../db/schema";
 import * as argon2 from "argon2";
 export class UserControllers {
   options = {
@@ -15,9 +15,10 @@ export class UserControllers {
     timeCost: 3,
     parallelism: 1,
   };
+
   constructor() {}
 
-  async register(req: RequestRegister, reply: FastifyReply) {
+  async register(req: RegisterRequest, reply: FastifyReply) {
     const body = req.body;
 
     const userWithEmail = await db.query.usersTable.findFirst({
@@ -88,7 +89,7 @@ export class UserControllers {
           // secure: true, // only over HTTPS
           sameSite: "strict",
           path: "/",
-          maxAge: 3600,
+          maxAge: 60 * 60 * 24,
         })
         .redirect(`${callback}`);
     }
@@ -96,7 +97,7 @@ export class UserControllers {
     reply.send("inavalid verification token or token has been used");
   }
 
-  async signIn(req: RequestSignIn, reply: FastifyReply) {
+  async signIn(req: SignInRequest, reply: FastifyReply) {
     const body = req.body;
 
     const user = await db.query.usersTable.findFirst({
@@ -122,7 +123,7 @@ export class UserControllers {
             // secure: true, // only over HTTPS
             sameSite: "strict",
             path: "/",
-            maxAge: 3600,
+            maxAge: 60 * 60 * 24,
           })
           .send({ message: "successfully logged in" })
           .redirect(body.callback)
@@ -135,7 +136,10 @@ export class UserControllers {
   }
 
   async signOut(_req: FastifyRequest, reply: FastifyReply) {
-    reply.clearCookie("JSESSION").send({ message: "logged out" }).status(200);
+    reply
+      .clearCookie("JSESSION")
+      .send({ statusCode: 200, message: "logged out" })
+      .status(200);
   }
 
   async getProfile(req: FastifyRequest, reply: FastifyReply) {
@@ -145,19 +149,29 @@ export class UserControllers {
       id: string;
     };
 
-    const profile =  await db.query.usersTable.findFirst({
+    const profile = await db.query.usersTable.findFirst({
       where: eq(usersTable.email, user.email),
+      with: {
+        followees: true,
+        followers: true,
+        recipes: true,
+        favoriteRecipes: true,
+        ratings: true,
+        comments: true,
+      },
     });
 
-    reply.send({
-      name: profile?.name,
-      userName: profile?.userName,
-      id: profile?.id,
-      email: profile?.email,
-      image: profile?.image,
-      emailVerified: profile?.emailVerified,
-      joinedOn: profile?.createdAt
-    }).status(200)
+    reply
+      .send({
+        name: profile?.name,
+        userName: profile?.userName,
+        id: profile?.id,
+        email: profile?.email,
+        image: profile?.image,
+        emailVerified: profile?.emailVerified,
+        joinedOn: profile?.createdAt,
+      })
+      .status(200);
   }
 
   //TODO: write the hooks that apend the decoded jwt to the req.user and for prevalidation auth and this set profile controller as well as the reciper controllers

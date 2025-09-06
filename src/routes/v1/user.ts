@@ -1,5 +1,9 @@
 import { FastifyInstance } from "fastify";
-import { registerSchema, signInSchema } from "../../json-schemas/user";
+import {
+  registerSchema,
+  signInSchema,
+  signOutSchema,
+} from "../../json-schemas/user";
 import { UserControllers } from "../../controllers/user";
 
 export async function userRoutes(app: FastifyInstance) {
@@ -12,7 +16,7 @@ export async function userRoutes(app: FastifyInstance) {
   app.post("/register", { schema: registerSchema }, user.register);
   app.get("/verify", (req, reply) => user.verify(req, reply, app));
   app.post("/login", { schema: signInSchema }, user.signIn);
-  app.get("/logout", user.signOut);
-  app.get("/profile", user.getProfile);
-  app.put("/profile", user.setProfile);
+  app.get("/logout", { schema: signOutSchema }, user.signOut);
+  // app.get("/profile", user.getProfile);
+  // app.put("/profile", user.setProfile);
 }
