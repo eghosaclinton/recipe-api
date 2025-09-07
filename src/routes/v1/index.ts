@@ -12,7 +12,7 @@ export async function indexRoute(
   app.register(fastifyJwt, {
     secret: process.env.JWT_SECRET!,
     cookie: {
-      cookieName: "LMCSESSION", // name of cookie to check
+      cookieName: "JSESSION", // name of cookie to check
       signed: false,
     },
     sign: {

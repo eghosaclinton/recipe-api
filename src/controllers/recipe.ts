@@ -12,6 +12,8 @@ export class RecipeControllers {
       userName: string;
       email: string;
       id: string;
+      iat: number;
+      exp: number;
     };
 
     
