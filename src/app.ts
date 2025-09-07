@@ -24,7 +24,7 @@ export default function FastifyApp() {
       info: {
         title: "Recipe Api Docs",
         version: "1.0.0",
-      },
+      }, 
     },
   });
 
