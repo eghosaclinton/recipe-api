@@ -16,7 +16,7 @@ export async function indexRoute(
       signed: false,
     },
     sign: {
-      expiresIn: "12h",
+      expiresIn: "24h",
     },
   });
 
