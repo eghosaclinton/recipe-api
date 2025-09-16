@@ -28,7 +28,7 @@ export const createRecipeSchema = {
           properties: {
             name: { type: "string" },
             order: { type: "number" },
-            quantity: { type: "number" },
+            quantity: { type: "string" },
           },
           required: ["name", "order", "quantity"],
           additionalProperties: false,
@@ -36,7 +36,15 @@ export const createRecipeSchema = {
       },
       tags: {
         type: "array",
-        items: { type: "string" },
+        items: {
+          type: "object",
+          properties: {
+            name: {type: "string"},
+            id: {type: "number"}
+          },
+          required: ["name", "id"],
+          additionalProperties: false,
+        },
       },
       image: { type: "string" },
       coverImage: { type: "string" },

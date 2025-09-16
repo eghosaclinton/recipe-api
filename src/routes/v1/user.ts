@@ -14,9 +14,12 @@ export async function userRoutes(app: FastifyInstance) {
   app.post("/login", { schema: signInSchema }, user.signIn);
   app.get(
     "/logout",
-    { schema: signOutSchema, preValidation: async (req, reply) => {
-      await req.jwtVerify()
-    } },
+    {
+      schema: signOutSchema,
+      preValidation: async (req, reply) => {
+        await req.jwtVerify();
+      },
+    },
     user.signOut
   );
   // app.get("/profile", user.getProfile);

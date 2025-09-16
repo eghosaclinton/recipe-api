@@ -51,6 +51,7 @@ export class UserControllers {
     const token = crypto.randomBytes(16).toString("hex");
 
     await redisClient.set(token, JSON.stringify(userCredentials));
+    await redisClient.expire(token, 600)
 
     const { email, name } = userCredentials;
 

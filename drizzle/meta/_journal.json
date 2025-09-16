@@ -8,6 +8,13 @@
       "when": 1757099339768,
       "tag": "0000_common_smiling_tiger",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1757351602092,
+      "tag": "0001_bouncy_the_executioner",
+      "breakpoints": true
     }
   ]
 }

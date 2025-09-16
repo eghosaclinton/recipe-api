@@ -20,8 +20,9 @@ export const recipeTable = pgTable("recipes", {
   description: varchar({ length: 4095 }).notNull(),
   directions: jsonb("directions")
     .notNull()
-    .$type<{ step: number; text: string, image?: string }[]>(),
-  tags: jsonb().notNull().$type<string[]>(),
+    .$type<{ step: number; text: string; image?: string }[]>(),
+    //TODO: make sure user can insert tags while posting recipes(if they dont exist yet)
+  tags: jsonb().notNull().$type<{ name: string; id: number }[]>(),
   userId: uuid()
     .notNull()
     .references(() => usersTable.id, { onDelete: "cascade" }),
@@ -44,5 +45,5 @@ export const recipeRelations = relations(recipeTable, ({ one, many }) => ({
   comments: many(commentsTable),
   recipeTags: many(recipeTagsTable),
   favoriteRecipes: many(favoriteRecipesTable),
-  ingredients: many(recipeIngredientsTable)
+  ingredients: many(recipeIngredientsTable),
 }));
