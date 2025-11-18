@@ -22,6 +22,4 @@ export async function userRoutes(app: FastifyInstance) {
     },
     user.signOut
   );
-  // app.get("/profile", user.getProfile);
-  // app.put("/profile", user.setProfile);
 }
