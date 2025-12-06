@@ -6,26 +6,26 @@ import { RegisterUserDto } from './dto/registerUser.dto';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post()
+  @Post('register')
   registerUser(@Body() registerUserDto: RegisterUserDto) {
     return this.authService.register(registerUserDto);
   }
 
-  @Get()
+  @Get('verify')
   verifyUser() {
     return {
       message: 'user verified',
     };
   }
 
-  @Post()
+  @Post('login')
   loginUser() {
     return {
       message: 'user logged in',
     };
   }
 
-  @Get()
+  @Get('logout')
   logOutUser() {
     return {
       message: 'user logged out',
